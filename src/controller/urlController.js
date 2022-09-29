@@ -5,13 +5,13 @@ const shortid = require('shortid')
 
 
 
-const baseUrl = 'http:localhost:3000'
+const baseUrl = 'http://localhost:3000'
 
 
 const urlShortner = async function (req, res) {
 
     try {
-        let longUrl = req.body.originalUrl;
+        let longUrl = req.body.longUrl;
 
     // checking if url is present.
     if (!longUrl) {
@@ -33,19 +33,17 @@ const urlShortner = async function (req, res) {
 
     const shortUrl = baseUrl + '/' + urlCode
 
-    // const url = new Url({
-    //     longUrl,
-    //     shortUrl,
-    //     urlCode
-    // });
+    
     let urlBody={
         urlCode: urlCode,
          longUrl:longUrl ,
         shortUrl:shortUrl 
     }
+   
 
-    const saveurl = await urlModel.create({urlBody})
-     return res.status(201).send({ status: true, message:"shortUrl successfully created" ,data:urlBody })
+
+    const saveUrl = await urlModel.create(urlBody)
+     return res.status(201).send({ status: true, message:"shortUrl successfully created" ,data:saveUrl })
     
     
         
