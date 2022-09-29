@@ -29,47 +29,54 @@ const urlShortner = async function (req, res) {
     if(findUrl) {
       return res.status(409).send({status: false, message: "url already exists"})
     }
-    const urlCode = shortid.generate()
+    const urlCode = shortid.generate(longUrl)
 
     const shortUrl = baseUrl + '/' + urlCode
 
     
     let urlBody={
-        urlCode: urlCode,
-         longUrl:longUrl ,
-        shortUrl:shortUrl 
+        longUrl:longUrl ,
+        shortUrl:shortUrl,
+        urlCode: urlCode
     }
    
 
 
     const saveUrl = await urlModel.create(urlBody)
-     return res.status(201).send({ status: true, message:"shortUrl successfully created" ,data:saveUrl })
+     return res.status(201).send({ status: true, message:"shortUrl successfully created" ,data:urlBody })
     
     
         
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message})
     }
-    
-
-
-//     shortUrl.short("longUrl", function (err, shortUrl) {
-//         // console.log(url);
-//         if(err){
-//             return res.status(400).send({ status: false, message: err.message })
-//         }
-//         else{
-//             return res.status(200).send({ status: true, data: shortUrl })
-//         }
-//     });
-   
-//   console.log(shortUrl)
-    // let urlBody={ longUrl:longUrl ,
-    // shortUrl:shortUrl ,
-    // urlCode: }
-
-    // await urlModel.create()
-
 
 }
+///--------------get Url api--------------------
+
+const getUrl = async function(req,res){
+    try {
+        let urlCode= req.params.urlCode
+        
+        if (!urlCode) {
+            return res.status(400).send({ status: false, message: "shorturl is required..." })
+        }
+        
+        const findUrl = await urlModel.findOne({urlCode})
+        
+        if (!findUrl) {
+            return res.status(400).send({ status: false, message: "shortUrl doesn't exist in db..." })
+        }
+        
+        return res.status(302).redirect(findUrl.longUrl)
+        
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message})
+    }
+}
+
 module.exports.urlShortner=urlShortner;
+module.exports.getUrl=getUrl
+
+
+
