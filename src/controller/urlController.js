@@ -1,9 +1,6 @@
 
 const urlModel = require("../model/urlModel");
 const shortid = require('shortid')
-const validUrl=/^([hH][tT][tT][pP]([sS])?:\/\/.)(www\.)?[-a-zA-Z0-9@:%.\+#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\+.#?&//=_]*$)/g;
-
-
 
 
 const baseUrl = 'http://localhost:3000'
@@ -19,16 +16,17 @@ const urlShortner = async function (req, res) {
             return res.status(400).send({ status: false, message: "url is required..." })
         }
 
-        // checking if url is valid or not.
-        if (!validUrl.test(longUrl)) {
-          
+        //--------------------check url regex -----------------------
+
+        if (!/^([hH][tT][tT][pP]([sS])?:\/\/.)(www\.)?[-a-zA-Z0-9@:%.\+#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%\+.#?&//=_]*$)/g.test(longUrl)) {
             return res.status(400).send({ status: false, message: "url is inValid..." })
         }
+
         //-----checking in present in db-----------
 
-        const findUrl = await urlModel.findOne({ longUrl }).select({createdAt:0,updatedAt:0,_id:0,__v:0})
+        const findUrl = await urlModel.findOne({ longUrl }).select({ createdAt: 0, updatedAt: 0, _id: 0, __v: 0 })
         if (findUrl) {
-            return res.status(200).send({ status: true,message: "shortUrl already exists", data: findUrl})
+            return res.status(200).send({ status: true, message: "shortUrl already exists", data: findUrl })
         }
         const urlCode = shortid.generate(longUrl)
 
