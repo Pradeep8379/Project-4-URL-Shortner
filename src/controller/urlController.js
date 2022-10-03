@@ -3,7 +3,6 @@ const urlModel = require("../model/urlModel");
 const shortid = require('shortid')
 const redis = require("redis");
 const { promisify } = require("util");
-const { profile } = require("console");
 
 //Connect to redis
 const redisClient = redis.createClient(
@@ -84,12 +83,12 @@ const getUrl = async function (req, res) {
             return res.status(400).send({ status: false, message: "shorturl is required..." })
         }
 
-        let profile = await GET_ASYNC(`${req.params.urlCode}`)
+        let profile = await GET_ASYNC(`${urlCode}`)
 
         console.log(profile)
         if (profile) {
-
-            return res.status(302).redirect(profile)
+           let data =JSON.parse(profile)
+            return res.status(302).redirect(data)
         }
 
         else {
@@ -99,7 +98,7 @@ const getUrl = async function (req, res) {
                 return res.status(400).send({ status: false, message: "shortUrl doesn't exist in db..." })
             }
 
-            await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(profile))
+            await SET_ASYNC(`${req.params.urlCode}`, JSON.stringify(profile.longUrl))
 
             return res.status(302).redirect(profile.longUrl)
         }
