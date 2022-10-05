@@ -45,28 +45,32 @@ const urlShortner = async function (req, res) {
             return res.status(400).send({ status: false, message: "url is inValid..." })
         }
 
-        //-----checking in present in db-----------
 
-        const findUrl = await urlModel.findOne({ longUrl }).select({ createdAt: 0, updatedAt: 0, _id: 0, __v: 0 })
-        if (findUrl) {
-            return res.status(200).send({ status: true, message: "shortUrl already exists", data: findUrl })
+        let profile = await GET_ASYNC(`${longUrl}`)
+
+        if (profile) {
+            return res.status(200).send({
+                status: true,
+                message: " url Already Exists in cache..",
+                data: JSON.parse(profile)
+            });
         }
-        const urlCode = shortid.generate(longUrl)
+
+        const urlCode = shortid.generate(longUrl).toLowerCase();
 
         const shortUrl = baseUrl + '/' + urlCode
-
 
         let urlBody = {
             longUrl: longUrl,
             shortUrl: shortUrl,
             urlCode: urlCode
         }
+        let data = await urlModel.create(urlBody)
 
+        await SET_ASYNC(`${longUrl}`, JSON.stringify(urlBody))
 
-        await urlModel.create(urlBody)
+        // await urlModel.create(urlBody)
         return res.status(201).send({ status: true, message: "shortUrl successfully created", data: urlBody })
-
-
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -87,7 +91,7 @@ const getUrl = async function (req, res) {
 
         console.log(profile)
         if (profile) {
-           let data =JSON.parse(profile)
+            let data = JSON.parse(profile)
             return res.status(302).redirect(data)
         }
 
